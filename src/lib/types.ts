@@ -282,3 +282,165 @@ export interface DashboardData {
   trends: TrendTopic[];
   activities: ActivityItem[];
 }
+
+export type ProductionPriority = "low" | "normal" | "high" | "urgent";
+export type ProductionLane =
+  | "intake"
+  | "research"
+  | "script"
+  | "edit"
+  | "legal_review"
+  | "ready"
+  | "scheduled";
+export type ApprovalStatus = "not_required" | "pending" | "approved" | "changes_requested" | "blocked";
+export type OperationalRisk = "clear" | "watch" | "review" | "blocked";
+export type EvidenceStatus = "verified" | "needs_review" | "missing" | "expired";
+export type QualityStatus = "pass" | "watch" | "fail";
+export type ReleaseEventType = "gate" | "qa" | "budget" | "incident" | "publish" | "rollback";
+
+export interface ApprovalGate {
+  id: string;
+  label: string;
+  owner: string;
+  status: ApprovalStatus;
+  dueAt?: string;
+  note: string;
+}
+
+export interface ProductionTask {
+  id: string;
+  shortId?: string;
+  title: string;
+  workingTitle: string;
+  channel: string;
+  lane: ProductionLane;
+  priority: ProductionPriority;
+  owner: string;
+  dueAt: string;
+  estimatedMinutes: number;
+  automationId?: string;
+  gates: ApprovalGate[];
+  risk: {
+    level: OperationalRisk;
+    policyFlags: string[];
+    copyrightRisk: number;
+    claimRisk: number;
+    sourceCoverage: number;
+    costEstimateUsd: number;
+  };
+  publishWindow: {
+    recommendedAt: string;
+    reason: string;
+    expectedViews: [number, number];
+  };
+  audience: {
+    primarySegment: string;
+    retentionHook: string;
+    likelyObjection: string;
+    localizationNotes: string;
+  };
+  evidence: SourceEvidence[];
+  qualityChecks: QualityCheckItem[];
+  decisionBrief: {
+    operatorNote: string;
+    suggestedDecision: "approve" | "revise" | "hold" | "schedule";
+    releaseConfidence: number;
+    rollbackPlan: string;
+  };
+  handoff: HandoffItem[];
+  sla: {
+    targetMinutes: number;
+    elapsedMinutes: number;
+    breachRisk: "low" | "medium" | "high";
+    escalationOwner: string;
+  };
+}
+
+export interface SourceEvidence {
+  id: string;
+  label: string;
+  url: string;
+  sourceType: "official" | "academic" | "first_party" | "newsroom" | "internal";
+  status: EvidenceStatus;
+  checkedAt: string;
+  claim: string;
+}
+
+export interface QualityCheckItem {
+  id: string;
+  label: string;
+  status: QualityStatus;
+  score: number;
+  detail: string;
+}
+
+export interface BudgetGuardrail {
+  id: string;
+  label: string;
+  current: number;
+  limit: number;
+  unit: "usd" | "minutes" | "credits" | "count";
+  resetAt: string;
+  severity: "ok" | "watch" | "critical";
+}
+
+export interface Incident {
+  id: string;
+  title: string;
+  severity: "info" | "warning" | "critical";
+  status: "open" | "investigating" | "resolved";
+  startedAt: string;
+  owner: string;
+  impact: string;
+  nextAction: string;
+}
+
+export interface HandoffItem {
+  id: string;
+  label: string;
+  owner: string;
+  done: boolean;
+  detail: string;
+}
+
+export interface ReleaseEvent {
+  id: string;
+  type: ReleaseEventType;
+  title: string;
+  description: string;
+  actor: string;
+  occurredAt: string;
+  severity: "success" | "info" | "warning" | "critical";
+}
+
+export interface ChannelPolicy {
+  id: string;
+  channel: string;
+  rule: string;
+  current: number;
+  limit: number;
+  unit: "posts" | "minutes" | "warnings" | "usd";
+  action: string;
+}
+
+export interface ScenarioSimulation {
+  id: string;
+  name: string;
+  description: string;
+  impact: {
+    readyDelta: number;
+    spendDeltaUsd: number;
+    reviewMinutesDelta: number;
+    expectedViewsDelta: number;
+  };
+  recommendation: string;
+}
+
+export interface OperationsData {
+  productionTasks: ProductionTask[];
+  budgetGuardrails: BudgetGuardrail[];
+  incidents: Incident[];
+  releaseEvents: ReleaseEvent[];
+  channelPolicies: ChannelPolicy[];
+  simulations: ScenarioSimulation[];
+}

@@ -1,5 +1,17 @@
 # ShortsAuto
 
+## Operations Control Plane
+
+ShortsAuto now includes a production operations layer for teams that need more than content generation.
+
+- `/operations` shows approval gates, publish readiness, rights/fact-check risk, budget guardrails, and incident watch items.
+- The operations view now includes a source ledger, QA matrix, audience intelligence, operator decision brief, and rollback plan per clip.
+- The control room now also tracks producer handoff, SLA breach risk, release events, channel policies, and scenario simulations.
+- `GET /api/operations` exposes the same control-plane data for external automations, dashboards, or alerting.
+- `src/lib/operations.ts` contains deterministic scheduling and review rules used by both UI and API, including evidence score, QA score, handoff completion, SLA score, and release confidence.
+- `src/lib/operations.test.ts` covers auto-scheduling, copyright review, claim/source risk, evidence scoring, QA scoring, handoff/SLA scoring, and budget guardrails.
+- `docs/OPERATIONS.md` documents the daily runbook and manual review criteria.
+
 아이디어 발굴부터 대본, 장면 구성, 검수, 예약 발행까지 YouTube Shorts 제작 흐름을 한곳에서 운영하기 위한 자동화 콘솔입니다. 현재 버전은 완성도 높은 **데모 대시보드**와 선택적으로 AI Gateway를 사용하는 **AI 기획 생성 엔드포인트**를 제공합니다. Google OAuth, 실제 YouTube 업로드, 영속 데이터베이스, 외부 미디어 worker는 운영 아키텍처가 설계되어 있으며 다음 구현 단계에 포함됩니다.
 
 > 기본 원칙: AI가 초안을 빠르게 만들되, 저작권·사실성·브랜드 안전·공개 발행은 사람이 통제합니다. 프로덕션에서도 기본 공개 범위는 `private`이며 명시적인 승인 없이 자동 공개하지 않습니다.
